@@ -1,0 +1,20 @@
+# Temp files
+aseem_source.html
+zoura_source.html
+fetch_sources.ps1
+generate_icons.js
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+package-lock.json

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlexyPe Store Diagnostics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="header-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#grad1)" stroke="none"/>
+          <path d="M2 17L12 22L22 17" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M2 12L12 17L22 12" stroke="url(#grad2)" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="grad1" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#7C3AED"/>
+              <stop offset="100%" stop-color="#06B6D4"/>
+            </linearGradient>
+            <linearGradient id="grad2" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#06B6D4"/>
+              <stop offset="100%" stop-color="#7C3AED"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">FlexyPe Diagnostics</div>
+        <div class="header-subtitle">Store Intelligence Tool</div>
+      </div>
+    </div>
+    <button id="btn-refresh" class="btn-refresh" title="Refresh Diagnostics">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M1 4v6h6M23 20v-6h-6"/>
+        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- ── LOADING STATE ────────────────────────────────────────────────── -->
+  <div id="state-loading" class="state-view">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+    </div>
+    <p class="loading-text">Scanning storefront…</p>
+  </div>
+
+  <!-- ── ERROR STATE ──────────────────────────────────────────────────── -->
+  <div id="state-error" class="state-view hidden">
+    <div class="error-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <p class="error-title">Unable to Scan</p>
+    <p id="error-message" class="error-msg">An unknown error occurred.</p>
+  </div>
+
+  <!-- ── NOT SHOPIFY STATE ────────────────────────────────────────────── -->
+  <div id="state-not-shopify" class="state-view hidden">
+    <div class="not-shopify-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+    <p class="not-shopify-title">Not a Shopify Store</p>
+    <p class="not-shopify-msg">This page doesn't appear to be a Shopify storefront.</p>
+    <p id="current-url-display" class="current-url-text"></p>
+  </div>
+
+  <!-- ── MAIN CONTENT ─────────────────────────────────────────────────── -->
+  <div id="state-content" class="hidden">
+
+    <!-- TAB NAV -->
+    <nav class="tab-nav" id="tab-nav">
+      <button class="tab-btn active" data-tab="overview" id="tab-overview">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="tab-btn" data-tab="products" id="tab-products">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Products
+        <span class="tab-badge" id="badge-products">0</span>
+      </button>
+      <button class="tab-btn" data-tab="disabled" id="tab-disabled">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        Disabled
+        <span class="tab-badge badge-warn" id="badge-disabled">0</span>
+      </button>
+      <button class="tab-btn" data-tab="apps" id="tab-apps">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Apps
+        <span class="tab-badge badge-blue" id="badge-apps">0</span>
+      </button>
+      <button class="tab-btn" data-tab="config" id="tab-config">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Config
+      </button>
+    </nav>
+
+    <!-- ── TAB: OVERVIEW ─────────────────────────────────────────────── -->
+    <div class="tab-content active" id="panel-overview">
+      <!-- Store banner -->
+      <div class="store-banner">
+        <div class="store-banner-inner">
+          <div class="store-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div>
+            <div class="store-name" id="store-name">Loading…</div>
+            <div class="store-url" id="store-url">—</div>
+          </div>
+          <div class="store-page-badge" id="store-page-badge">—</div>
+        </div>
+      </div>
+
+      <!-- Info Grid -->
+      <div class="info-grid" id="info-grid">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Quick Products Summary -->
+      <div class="section-label">FlexyPe Products</div>
+      <div class="product-pills" id="product-pills">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Page Features -->
+      <div class="section-label">Page Features</div>
+      <div class="features-grid" id="features-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- ── TAB: PRODUCTS ─────────────────────────────────────────────── -->
+    <div class="tab-content hidden" id="panel-products">
+      <div id="products-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- ── TAB: DISABLED ─────────────────────────────────────────────── -->
+    <div class="tab-content hidden" id="panel-disabled">
+      <div id="disabled-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- ── TAB: APPS ──────────────────────────────────────────────────── -->
+    <div class="tab-content hidden" id="panel-apps">
+      <div id="apps-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- ── TAB: CONFIG (Bonus) ──────────────────────────────────────── -->
+    <div class="tab-content hidden" id="panel-config">
+      <div class="config-intro">
+        <p class="config-intro-text">Inspect FlexyPe product configurations detected on the storefront. Configurations are extracted from window globals and inline script data.</p>
+      </div>
+      <div id="config-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
+  <footer class="footer" id="footer" style="display:none;">
+    <span id="scan-timestamp"></span>
+    <button id="btn-copy-report" class="btn-copy">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy Report
+    </button>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
