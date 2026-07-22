@@ -207,4 +207,4 @@ FlexyPe products set global variables (e.g., `window.FlexyPeCart`, `window.openF
 
 ## Author
 
-Built as a Product Support Engineer Assignment for FlexyPe.
+Built as a Product Support Engineer Assignment for FlexyPe by Kunal Ashok Bamane 😁.
